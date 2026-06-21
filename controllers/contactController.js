@@ -1,58 +1,45 @@
-const nodemailer = require("nodemailer");
-const { Contact, Association } = require("../models");
-require("dotenv").config();
+const { Contact } = require("../models");
 
-const envoyerContact = async (req, res) => {
+// Envoyer un message de contact
+const create = async (req, res) => {
   try {
-    const { association_id, nom_expediteur, email_expediteur, message } =
-      req.body;
-
-    // Vérifier que l'association existe
-    const association = await Association.findByPk(association_id);
-    if (!association) {
-      return res.status(404).json({ message: "Association introuvable" });
-    }
-
-    // Sauvegarder le contact en BDD
+    const { nom, email, message, associationId } = req.body;
     const contact = await Contact.create({
-      association_id,
-      nom_expediteur,
-      email_expediteur,
+      nom,
+      email,
       message,
-      statut: "envoyé",
+      associationId,
     });
-
-    // Envoyer l'email via Nodemailer
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: association.email_public,
-      subject: `DiaspoConnect — Nouveau message de ${nom_expediteur}`,
-      html: `
-        <h2>Nouveau message via DiaspoConnect</h2>
-        <p><strong>De :</strong> ${nom_expediteur} (${email_expediteur})</p>
-        <p><strong>Message :</strong></p>
-        <p>${message}</p>
-        <hr/>
-        <p><small>Ce message a été envoyé via DiaspoConnect</small></p>
-      `,
-    });
-
-    res.status(201).json({
-      message: "Message envoyé avec succès !",
-      contact,
-    });
+    res.status(201).json({ message: "Message envoyé", contact });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
   }
 };
 
-module.exports = { envoyerContact };
+// Récupérer tous les messages d'une association
+const getAll = async (req, res) => {
+  try {
+    const contacts = await Contact.findAll({
+      where: { associationId: req.params.associationId },
+    });
+    res.json(contacts);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
+  }
+};
+
+// Supprimer un message
+const remove = async (req, res) => {
+  try {
+    const contact = await Contact.findByPk(req.params.id);
+    if (!contact)
+      return res.status(404).json({ message: "Message introuvable" });
+
+    await contact.destroy();
+    res.json({ message: "Message supprimé" });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
+  }
+};
+
+module.exports = { create, getAll, remove };

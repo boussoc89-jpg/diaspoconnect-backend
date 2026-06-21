@@ -1,66 +1,70 @@
-const { Projet } = require("../models");
+const { Projet, Association } = require("../models");
 
 // Récupérer tous les projets
-const getProjets = async (req, res) => {
+const getAll = async (req, res) => {
   try {
     const projets = await Projet.findAll({
-      order: [
-        ["urgent", "DESC"],
-        ["date_publication", "DESC"],
-      ],
+      include: [{ model: Association, attributes: ["nom", "ville", "pays"] }],
     });
     res.json(projets);
   } catch (err) {
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
   }
 };
 
 // Récupérer un projet par ID
-const getProjet = async (req, res) => {
+const getOne = async (req, res) => {
   try {
-    const projet = await Projet.findByPk(req.params.id);
-    if (!projet) {
-      return res.status(404).json({ message: "Projet introuvable" });
-    }
+    const projet = await Projet.findByPk(req.params.id, {
+      include: [{ model: Association, attributes: ["nom", "ville", "pays"] }],
+    });
+    if (!projet) return res.status(404).json({ message: "Projet introuvable" });
     res.json(projet);
   } catch (err) {
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
   }
 };
 
 // Créer un projet
-const createProjet = async (req, res) => {
+const create = async (req, res) => {
   try {
-    const {
-      titre,
-      description,
-      domaine,
-      localite,
-      region,
-      montant_objectif,
-      urgent,
-    } = req.body;
-
+    const { titre, description, statut, associationId } = req.body;
     const projet = await Projet.create({
-      porteur_id: req.user.id,
       titre,
       description,
-      domaine,
-      localite,
-      region,
-      montant_objectif,
-      montant_collecte: 0,
-      urgent: urgent || false,
-      statut: "En cours",
+      statut,
+      associationId,
     });
-
-    res.status(201).json({
-      message: "Projet publié avec succès !",
-      projet,
-    });
+    res.status(201).json({ message: "Projet créé", projet });
   } catch (err) {
-    res.status(500).json({ message: "Erreur serveur", error: err.message });
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
   }
 };
 
-module.exports = { getProjets, getProjet, createProjet };
+// Modifier un projet
+const update = async (req, res) => {
+  try {
+    const projet = await Projet.findByPk(req.params.id);
+    if (!projet) return res.status(404).json({ message: "Projet introuvable" });
+
+    await projet.update(req.body);
+    res.json({ message: "Projet mis à jour", projet });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
+  }
+};
+
+// Supprimer un projet
+const remove = async (req, res) => {
+  try {
+    const projet = await Projet.findByPk(req.params.id);
+    if (!projet) return res.status(404).json({ message: "Projet introuvable" });
+
+    await projet.destroy();
+    res.json({ message: "Projet supprimé" });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
+  }
+};
+
+module.exports = { getAll, getOne, create, update, remove };

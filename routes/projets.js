@@ -1,17 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const {
-  getProjets,
-  getProjet,
-  createProjet,
+  getAll,
+  getOne,
+  create,
+  update,
+  remove,
 } = require("../controllers/projetController");
 const verifyToken = require("../middlewares/verifyToken");
 
-// Routes publiques
-router.get("/", getProjets);
-router.get("/:id", getProjet);
-
-// Routes protégées
-router.post("/", verifyToken, createProjet);
+router.get("/", getAll);
+router.get("/:id", getOne);
+router.post("/", verifyToken, create);
+router.put("/:id", verifyToken, update);
+router.delete("/:id", verifyToken, remove);
 
 module.exports = router;
