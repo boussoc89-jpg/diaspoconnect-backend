@@ -10,7 +10,7 @@ const sequelize = new Sequelize(
     dialect: "mysql",
     dialectOptions: {
       ssl: {
-        rejectUnauthorized: true, // Aiven exige un certificat valide
+        rejectUnauthorized: false, // Aiven exige un certificat valide
       },
     },
     logging: false,
