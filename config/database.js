@@ -8,11 +8,14 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
     dialect: "mysql",
-    dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false, // Aiven exige un certificat valide
-      },
-    },
+    dialectOptions:
+      process.env.NODE_ENV === "production"
+        ? {
+            ssl: {
+              rejectUnauthorized: false,
+            },
+          }
+        : {},
     logging: false,
   },
 );
