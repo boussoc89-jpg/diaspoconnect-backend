@@ -1,5 +1,4 @@
 const { Sequelize } = require("sequelize");
-require("dotenv").config();
 
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -7,7 +6,13 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
     dialect: "mysql",
+    dialectOptions: {
+      ssl: {
+        rejectUnauthorized: true, // Aiven exige un certificat valide
+      },
+    },
     logging: false,
   },
 );
