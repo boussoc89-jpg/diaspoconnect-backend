@@ -13,7 +13,12 @@ const contactRoutes = require("./routes/contacts");
 const app = express();
 
 // Middlewares
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://diaspoconnect-olive.vercel.app",
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 // Routes
@@ -34,7 +39,7 @@ sequelize
   .authenticate()
   .then(() => {
     console.log("✅ Connexion MySQL réussie !");
-    return sequelize.sync({ alter: false });
+    return sequelize.sync({ alter: true });
   })
   .then(() => {
     app.listen(PORT, () => {
