@@ -4,6 +4,7 @@ const { Utilisateur } = require("../models");
 
 const register = async (req, res) => {
   try {
+    console.log("BODY REÇU:", req.body);
     const { nom, email, motDePasse, role } = req.body;
 
     const existe = await Utilisateur.findOne({ where: { email } });
