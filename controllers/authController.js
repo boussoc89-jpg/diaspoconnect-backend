@@ -2,7 +2,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Utilisateur } = require("../models");
 
-// INSCRIPTION
 const register = async (req, res) => {
   try {
     const { nom, email, motDePasse, role } = req.body;
@@ -15,8 +14,8 @@ const register = async (req, res) => {
     const utilisateur = await Utilisateur.create({
       nom,
       email,
-      motDePasse: hash,
-      role,
+      mot_de_passe: hash,
+      role: role || "visiteur",
     });
 
     res
@@ -27,7 +26,6 @@ const register = async (req, res) => {
   }
 };
 
-// CONNEXION
 const login = async (req, res) => {
   try {
     const { email, motDePasse } = req.body;
@@ -36,7 +34,7 @@ const login = async (req, res) => {
     if (!utilisateur)
       return res.status(404).json({ message: "Utilisateur introuvable" });
 
-    const valide = await bcrypt.compare(motDePasse, utilisateur.motDePasse);
+    const valide = await bcrypt.compare(motDePasse, utilisateur.mot_de_passe);
     if (!valide)
       return res.status(401).json({ message: "Mot de passe incorrect" });
 
