@@ -26,6 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/associations", associationRoutes);
 app.use("/api/projets", projetRoutes);
 app.use("/api/contacts", contactRoutes);
+app.use("/api/seed", require("./routes/seed"));
 
 // Route test
 app.get("/", (req, res) => {
