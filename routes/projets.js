@@ -6,10 +6,12 @@ const {
   create,
   update,
   remove,
+  getMesProjets,
 } = require("../controllers/projetController");
 const verifyToken = require("../middlewares/verifyToken");
 
 router.get("/", getAll);
+router.get("/mes-projets", verifyToken, getMesProjets);
 router.get("/:id", getOne);
 router.post("/", verifyToken, create);
 router.put("/:id", verifyToken, update);

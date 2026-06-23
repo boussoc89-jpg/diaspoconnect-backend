@@ -1,10 +1,10 @@
 const { Projet, Association } = require("../models");
 
-// Récupérer tous les projets
 const getAll = async (req, res) => {
   try {
     const projets = await Projet.findAll({
-      include: [{ model: Association, attributes: ["nom", "ville", "pays"] }],
+      include: [{ model: Association, attributes: ["nom", "pays", "regions"] }],
+      order: [["date_publication", "DESC"]],
     });
     res.json(projets);
   } catch (err) {
@@ -12,11 +12,10 @@ const getAll = async (req, res) => {
   }
 };
 
-// Récupérer un projet par ID
 const getOne = async (req, res) => {
   try {
     const projet = await Projet.findByPk(req.params.id, {
-      include: [{ model: Association, attributes: ["nom", "ville", "pays"] }],
+      include: [{ model: Association, attributes: ["nom", "pays", "regions"] }],
     });
     if (!projet) return res.status(404).json({ message: "Projet introuvable" });
     res.json(projet);
@@ -25,15 +24,28 @@ const getOne = async (req, res) => {
   }
 };
 
-// Créer un projet
 const create = async (req, res) => {
   try {
-    const { titre, description, statut, associationId } = req.body;
+    const {
+      titre,
+      description,
+      domaine,
+      localite,
+      region,
+      montant_objectif,
+      urgent,
+    } = req.body;
     const projet = await Projet.create({
       titre,
       description,
-      statut,
-      associationId,
+      domaine,
+      localite,
+      region,
+      montant_objectif: montant_objectif || 0,
+      montant_collecte: 0,
+      urgent: urgent || false,
+      porteur_id: req.utilisateur.id,
+      statut: "En cours",
     });
     res.status(201).json({ message: "Projet créé", projet });
   } catch (err) {
@@ -41,12 +53,15 @@ const create = async (req, res) => {
   }
 };
 
-// Modifier un projet
 const update = async (req, res) => {
   try {
     const projet = await Projet.findByPk(req.params.id);
     if (!projet) return res.status(404).json({ message: "Projet introuvable" });
-
+    if (
+      projet.porteur_id !== req.utilisateur.id &&
+      req.utilisateur.role !== "admin"
+    )
+      return res.status(403).json({ message: "Non autorisé" });
     await projet.update(req.body);
     res.json({ message: "Projet mis à jour", projet });
   } catch (err) {
@@ -54,12 +69,15 @@ const update = async (req, res) => {
   }
 };
 
-// Supprimer un projet
 const remove = async (req, res) => {
   try {
     const projet = await Projet.findByPk(req.params.id);
     if (!projet) return res.status(404).json({ message: "Projet introuvable" });
-
+    if (
+      projet.porteur_id !== req.utilisateur.id &&
+      req.utilisateur.role !== "admin"
+    )
+      return res.status(403).json({ message: "Non autorisé" });
     await projet.destroy();
     res.json({ message: "Projet supprimé" });
   } catch (err) {
@@ -67,4 +85,16 @@ const remove = async (req, res) => {
   }
 };
 
-module.exports = { getAll, getOne, create, update, remove };
+const getMesProjets = async (req, res) => {
+  try {
+    const projets = await Projet.findAll({
+      where: { porteur_id: req.utilisateur.id },
+      order: [["date_publication", "DESC"]],
+    });
+    res.json(projets);
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
+  }
+};
+
+module.exports = { getAll, getOne, create, update, remove, getMesProjets };
