@@ -183,5 +183,22 @@ router.post("/", async (req, res) => {
     res.status(500).json({ message: "❌ Erreur", erreur: err.message });
   }
 });
+router.post("/admin", async (req, res) => {
+  try {
+    const bcrypt = require("bcrypt");
+    const { Utilisateur } = require("../models");
+    const hash = await bcrypt.hash("Admin1234!", 10);
+    await Utilisateur.create({
+      nom: "Admin DiaspoConnect",
+      email: "admin@diaspoconnect.com",
+      mot_de_passe: hash,
+      role: "admin",
+      statut: "actif",
+    });
+    res.json({ message: "✅ Admin créé !" });
+  } catch (err) {
+    res.status(500).json({ message: "❌ Erreur", erreur: err.message });
+  }
+});
 
 module.exports = router;
