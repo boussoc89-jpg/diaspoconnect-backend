@@ -3,7 +3,6 @@ const { Projet, Association } = require("../models");
 const getAll = async (req, res) => {
   try {
     const projets = await Projet.findAll({
-      include: [{ model: Association, attributes: ["nom", "pays", "regions"] }],
       order: [["date_publication", "DESC"]],
     });
     res.json(projets);
@@ -14,9 +13,7 @@ const getAll = async (req, res) => {
 
 const getOne = async (req, res) => {
   try {
-    const projet = await Projet.findByPk(req.params.id, {
-      include: [{ model: Association, attributes: ["nom", "pays", "regions"] }],
-    });
+    const projet = await Projet.findByPk(req.params.id);
     if (!projet) return res.status(404).json({ message: "Projet introuvable" });
     res.json(projet);
   } catch (err) {
@@ -35,6 +32,8 @@ const create = async (req, res) => {
       montant_objectif,
       urgent,
     } = req.body;
+    console.log("CREATE PROJET - utilisateur:", req.utilisateur);
+    console.log("CREATE PROJET - body:", req.body);
     const projet = await Projet.create({
       titre,
       description,
@@ -49,6 +48,7 @@ const create = async (req, res) => {
     });
     res.status(201).json({ message: "Projet créé", projet });
   } catch (err) {
+    console.error("ERREUR CREATE PROJET:", err.message);
     res.status(500).json({ message: "Erreur serveur", erreur: err.message });
   }
 };
