@@ -1,10 +1,9 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { Utilisateur } = require("../models");
+const { Utilisateur, Association } = require("../models");
 
 const register = async (req, res) => {
   try {
-    console.log("BODY REÇU:", req.body);
     const { nom, email, motDePasse, role } = req.body;
 
     const existe = await Utilisateur.findOne({ where: { email } });
@@ -17,7 +16,19 @@ const register = async (req, res) => {
       email,
       mot_de_passe: hash,
       role: role || "visiteur",
+      statut: "actif",
     });
+
+    // Si c'est une association, créer une entrée dans la table associations
+    if (role === "association") {
+      await Association.create({
+        nom,
+        email_public: email,
+        utilisateur_id: utilisateur.id,
+        statut: "en_attente",
+        badge: "Membre",
+      });
+    }
 
     res
       .status(201)
