@@ -4,7 +4,19 @@ const { Utilisateur, Association } = require("../models");
 
 const register = async (req, res) => {
   try {
-    const { nom, email, motDePasse, role } = req.body;
+    const {
+      nom,
+      email,
+      motDePasse,
+      role,
+      pays,
+      description,
+      site_web,
+      telephone,
+      depuis,
+      domaines,
+      regions,
+    } = req.body;
 
     const existe = await Utilisateur.findOne({ where: { email } });
     if (existe) return res.status(400).json({ message: "Email déjà utilisé" });
@@ -19,7 +31,6 @@ const register = async (req, res) => {
       statut: "actif",
     });
 
-    // Si c'est une association, créer une entrée dans la table associations
     if (role === "association") {
       await Association.create({
         nom,
@@ -27,6 +38,13 @@ const register = async (req, res) => {
         utilisateur_id: utilisateur.id,
         statut: "en_attente",
         badge: "Membre",
+        pays: pays || null,
+        description: description || null,
+        site_web: site_web || null,
+        telephone: telephone || null,
+        depuis: depuis || null,
+        domaines: domaines || null,
+        regions: regions || null,
       });
     }
 
