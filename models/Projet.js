@@ -44,8 +44,8 @@ const Projet = sequelize.define(
       defaultValue: false,
     },
     statut: {
-      type: DataTypes.ENUM("En cours", "Financé", "Clôturé"),
-      defaultValue: "En cours",
+      type: DataTypes.ENUM("en_attente", "En cours", "Financé", "Clôturé"),
+      defaultValue: "en_attente",
     },
   },
   {
