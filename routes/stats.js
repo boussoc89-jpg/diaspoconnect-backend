@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { Association, Projet, Sequelize } = require("../models");
+const { Association, Projet } = require("../models");
+const { Sequelize } = require("sequelize");
 
 router.get("/", async (req, res) => {
   try {
@@ -10,11 +11,12 @@ router.get("/", async (req, res) => {
 
     const totalFonds = (await Projet.sum("montant_collecte")) || 0;
 
-    const pays = await Association.findAll({
-      attributes: [[Sequelize.fn("DISTINCT", Sequelize.col("pays")), "pays"]],
+    const paysResult = await Association.findAll({
+      attributes: ["pays"],
       where: { statut: "actif" },
+      group: ["pays"],
     });
-    const totalPays = pays.filter((p) => p.pays).length;
+    const totalPays = paysResult.filter((p) => p.pays).length;
 
     const totalProjets = await Projet.count();
 
