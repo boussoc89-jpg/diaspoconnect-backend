@@ -61,8 +61,14 @@ const update = async (req, res) => {
     const association = await Association.findByPk(req.params.id);
     if (!association)
       return res.status(404).json({ message: "Association introuvable" });
-    if (association.utilisateur_id !== req.utilisateur.id)
+
+    // Admin peut tout modifier, sinon vérifier que c'est le propriétaire
+    if (
+      req.utilisateur.role !== "admin" &&
+      association.utilisateur_id !== req.utilisateur.id
+    )
       return res.status(403).json({ message: "Non autorisé" });
+
     await association.update(req.body);
     res.json({ message: "Association mise à jour", association });
   } catch (err) {
