@@ -5,6 +5,7 @@ require("dotenv").config();
 const { sequelize } = require("./models");
 
 // Import routes
+const statsRoutes = require("./routes/stats");
 const authRoutes = require("./routes/auth");
 const associationRoutes = require("./routes/associations");
 const projetRoutes = require("./routes/projets");
@@ -22,6 +23,7 @@ app.use(
 app.use(express.json());
 
 // Routes
+app.use("/api/stats", statsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/associations", associationRoutes);
 app.use("/api/projets", projetRoutes);
