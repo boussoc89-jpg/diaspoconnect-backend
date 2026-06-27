@@ -81,8 +81,14 @@ const remove = async (req, res) => {
     const association = await Association.findByPk(req.params.id);
     if (!association)
       return res.status(404).json({ message: "Association introuvable" });
-    if (association.utilisateur_id !== req.utilisateur.id)
+
+    // Admin peut supprimer n'importe quelle association
+    if (
+      req.utilisateur.role !== "admin" &&
+      association.utilisateur_id !== req.utilisateur.id
+    )
       return res.status(403).json({ message: "Non autorisé" });
+
     await association.destroy();
     res.json({ message: "Association supprimée" });
   } catch (err) {

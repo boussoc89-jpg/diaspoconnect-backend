@@ -107,13 +107,4 @@ const validerProjet = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", erreur: err.message });
   }
 };
-module.exports = {
-  getAll,
-  getOne,
-  create,
-  update,
-  remove,
-  getMesProjets,
-  getPendingProjets,
-  validerProjet,
-};
+module.exports = { getAll, getOne, create, update, remove, getMesProjets, getPendingProjets, validerProjet };
