@@ -29,6 +29,20 @@ app.use("/api/associations", associationRoutes);
 app.use("/api/projets", projetRoutes);
 app.use("/api/contacts", contactRoutes);
 
+// Route reset BDD (temporaire)
+app.delete("/api/reset", async (req, res) => {
+  try {
+    await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
+    await sequelize.query("TRUNCATE TABLE projets");
+    await sequelize.query("TRUNCATE TABLE associations");
+    await sequelize.query("TRUNCATE TABLE utilisateurs");
+    await sequelize.query("SET FOREIGN_KEY_CHECKS = 1");
+    res.json({ message: "✅ Base de données vidée !" });
+  } catch (err) {
+    res.status(500).json({ message: "❌ Erreur", erreur: err.message });
+  }
+});
+
 // Route test
 app.get("/", (req, res) => {
   res.json({ message: "🌍 DiaspoConnect API est en ligne !" });
