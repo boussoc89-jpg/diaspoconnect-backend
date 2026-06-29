@@ -34,19 +34,6 @@ app.get("/", (req, res) => {
   res.json({ message: "🌍 DiaspoConnect API est en ligne !" });
 });
 
-app.get("/api/make-admin/:email", async (req, res) => {
-  try {
-    const { Utilisateur } = require("./models");
-    await Utilisateur.update(
-      { role: "admin" },
-      { where: { email: req.params.email } },
-    );
-    res.json({ message: "✅ Admin créé !" });
-  } catch (err) {
-    res.status(500).json({ message: "❌ Erreur", erreur: err.message });
-  }
-});
-
 // Démarrage serveur
 const PORT = process.env.PORT || 5000;
 
