@@ -93,5 +93,39 @@ const getMesProjets = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", erreur: err.message });
   }
 };
+const soutenir = async (req, res) => {
+  try {
+    const projet = await Projet.findByPk(req.params.id);
+    if (!projet) return res.status(404).json({ message: "Projet introuvable" });
 
-module.exports = { getAll, getOne, create, update, remove, getMesProjets };
+    const { montant } = req.body;
+    if (!montant || montant <= 0)
+      return res.status(400).json({ message: "Montant invalide" });
+
+    const nouveauMontant =
+      parseFloat(projet.montant_collecte) + parseFloat(montant);
+    const nouveauStatut =
+      nouveauMontant >= parseFloat(projet.montant_objectif)
+        ? "Financé"
+        : "En cours";
+
+    await projet.update({
+      montant_collecte: nouveauMontant,
+      statut: nouveauStatut,
+    });
+
+    res.json({ message: "Contribution enregistrée", projet });
+  } catch (err) {
+    res.status(500).json({ message: "Erreur serveur", erreur: err.message });
+  }
+};
+
+module.exports = {
+  getAll,
+  getOne,
+  create,
+  update,
+  remove,
+  getMesProjets,
+  soutenir,
+};
